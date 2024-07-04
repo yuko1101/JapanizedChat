@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "japanizedchat",
+  "version": "${version}",
+
+  "name": "JapanizedChat",
+  "description": "A minecraft mod which converts Romaji into Japanese in chat.",
+  "authors": [],
+  "contact": {},
+
+  "license": "MIT",
+  "icon": "icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "io.github.yuko1101.japanizedchat.fabric.JapanizedChatFabric"
+    ]
+  },
+  "mixins": [
+    "japanizedchat.mixins.json",
+    "japanizedchat-common.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.15.11",
+    "minecraft": ">=1.21"
+  }
+}
