@@ -1,10 +1,6 @@
 package io.github.yuko1101.japanizedchat.util;
 
-import net.minecraft.client.gui.hud.ChatHud;
-import net.minecraft.client.gui.hud.MessageIndicator;
-import net.minecraft.network.message.MessageSignatureData;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,44 +10,12 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.regex.Pattern;
 
-public class Japanizer implements Runnable {
+public class Japanizer {
 
-    private static final String messageRegex = "^<.+?> (.+)$";
-
-    private final ChatHud chatHud;
-    private final Text message;
-    private final MessageSignatureData signatureData;
-    private final MessageIndicator indicator;
-
-    public Japanizer(ChatHud chatHud, Text message, MessageSignatureData signatureData, MessageIndicator indicator) {
-        this.chatHud = chatHud;
-        this.message = message;
-        this.signatureData = signatureData;
-        this.indicator = indicator;
-    }
-
-    @Override
-    public void run() {
-        var pattern = Pattern.compile(messageRegex);
-        var matcher = pattern.matcher(message.getString());
-        if (!matcher.matches()) {
-            chatHud.addMessage(message, signatureData, indicator);
-            return;
-        }
-
-        String msg = matcher.group(1);
-        msg = romaToKana(msg);
-        msg = conv(msg, true);
-
-        var modifiedText = Text.empty();
-        modifiedText.append(message);
-
-        var japanizedText = Text.literal(" (" + msg + ")").setStyle(message.getStyle().withColor(Formatting.GOLD));
-        modifiedText.append(japanizedText);
-
-        chatHud.addMessage(modifiedText, signatureData, indicator);
+    @Nullable
+    public static String convert(String msg) {
+        return conv(romaToKana(msg));
     }
 
     public static String romaToKana(String romaji) {
@@ -501,47 +465,26 @@ public class Japanizer implements Runnable {
         return romaji;
     }
 
-    public static String convByGoogleIME(String org) {
-        return conv(org, true);
-    }
-
-    /** @deprecated */
-    @Deprecated
-    public static String convBySocialIME(String org) {
-        return conv(org, false);
-    }
-
-    private static String conv(String text, boolean isGoogleIME) {
+    @Nullable
+    private static String conv(String text) {
         if (!text.isEmpty()) {
             HttpURLConnection urlconn = null;
             BufferedReader reader = null;
 
             try {
-                String baseurl;
-                String encode;
-                if (isGoogleIME) {
-                    baseurl = "https://www.google.com/transliterate?langpair=ja-Hira%7Cja&text=" + URLEncoder.encode(text, StandardCharsets.UTF_8);
-                    encode = "UTF-8";
-                } else {
-                    baseurl = "https://www.social-ime.com/api/?string=" + URLEncoder.encode(text, StandardCharsets.UTF_8);
-                    encode = "EUC_JP";
-                }
+                String baseurl = "https://www.google.com/transliterate?langpair=ja-Hira%7Cja&text=" + URLEncoder.encode(text, StandardCharsets.UTF_8);
 
                 URL url = URI.create(baseurl).toURL();
                 urlconn = (HttpURLConnection) url.openConnection();
                 urlconn.setRequestMethod("GET");
                 urlconn.setInstanceFollowRedirects(false);
                 urlconn.connect();
-                reader = new BufferedReader(new InputStreamReader(urlconn.getInputStream(), encode));
+                reader = new BufferedReader(new InputStreamReader(urlconn.getInputStream(), StandardCharsets.UTF_8));
                 String line;
                 StringBuilder result = new StringBuilder();
 
                 while ((line = reader.readLine()) != null) {
-                    if (isGoogleIME) {
-                        result.append(parseGoogleIMEResult(line));
-                    } else {
-                        result.append(pickFirstElement(line));
-                    }
+                    result.append(parseIMEResponse(line));
                 }
 
                 return result.toString();
@@ -562,15 +505,10 @@ public class Japanizer implements Runnable {
             }
 
         }
-        return "";
+        return null;
     }
 
-    private static String pickFirstElement(String org) {
-        int index = org.indexOf("\t");
-        return index == -1 ? org : org.substring(0, index);
-    }
-
-    private static String parseGoogleIMEResult(String result) {
+    private static String parseIMEResponse(String result) {
         StringBuilder buf = new StringBuilder();
         int level = 0;
         int index = 0;
