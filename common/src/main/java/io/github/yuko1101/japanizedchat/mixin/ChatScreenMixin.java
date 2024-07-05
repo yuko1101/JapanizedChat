@@ -30,7 +30,12 @@ public class ChatScreenMixin {
 
         CompletableFuture.runAsync(() -> {
             var japanized = Japanizer.convert(content);
-            handler.sendChatMessage(japanized == null ? content : japanized);
+            if (japanized == null) {
+                handler.sendChatMessage(content);
+                return;
+            }
+
+            handler.sendChatMessage(JapanizedChat.japanizedInputWithOriginal ? content + " (" + japanized + ")" : japanized);
         });
     }
 
