@@ -23,7 +23,14 @@ public class MessageHandlerMixin {
 
     @Redirect(method = "processChatMessageInternal", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/ChatHud;addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignatureData;Lnet/minecraft/client/gui/hud/MessageIndicator;)V"))
     private void modifyChatMessage(ChatHud chatHud, Text originalText, MessageSignatureData signatureData, MessageIndicator indicator) {
-        var matched = Pattern.compile(MESSAGE_REGEX).matcher(originalText.getString());
+        var original = originalText.getString();
+        if (Japanizer.hasFullWidth(original)) {
+            chatHud.addMessage(originalText, signatureData, indicator);
+            return;
+        }
+
+
+        var matched = Pattern.compile(MESSAGE_REGEX).matcher(original);
         if (!matched.matches()) {
             chatHud.addMessage(originalText, signatureData, indicator);
             return;

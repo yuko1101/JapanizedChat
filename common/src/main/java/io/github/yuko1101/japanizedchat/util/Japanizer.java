@@ -10,12 +10,17 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public class Japanizer {
 
     @Nullable
     public static String convert(String msg) {
         return conv(romaToKana(msg));
+    }
+
+    public static boolean hasFullWidth(String msg) {
+        return Arrays.stream(msg.split("")).anyMatch(c -> c.getBytes().length > 1);
     }
 
     public static String romaToKana(String romaji) {
