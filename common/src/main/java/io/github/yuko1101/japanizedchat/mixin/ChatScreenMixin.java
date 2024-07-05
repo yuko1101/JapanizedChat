@@ -42,7 +42,7 @@ public class ChatScreenMixin {
     @Inject(method = "render", at = @At("HEAD"))
     private void onRender(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         var button = JapanizedChat.japanizedInput ? JAPANIZE_ENABLED_BUTTON : JAPANIZE_DISABLED_BUTTON;
-        button.setPosition(context.getScaledWindowWidth() - button.getWidth() - 10, context.getScaledWindowHeight() - button.getHeight() - 10);
+        button.setPosition(context.getScaledWindowWidth() - button.getWidth() - 10, context.getScaledWindowHeight() - button.getHeight() - 20);
         button.render(context, mouseX, mouseY, delta);
     }
 
