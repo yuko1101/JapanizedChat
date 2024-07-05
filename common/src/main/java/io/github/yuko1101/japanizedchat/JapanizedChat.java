@@ -4,6 +4,8 @@ public class JapanizedChat
 {
 	public static final String MOD_ID = "japanizedchat";
 
+	public static boolean japanizedInput = true;
+
 	public static void init() {
 		
 	}

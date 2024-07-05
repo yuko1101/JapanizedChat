@@ -30,16 +30,16 @@ public class MessageHandlerMixin {
         }
         var message = matched.group(1);
 
-        CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> Japanizer.convert(message));
-        future.thenAccept(japanizedMessage -> {
-            if (japanizedMessage == null) {
+        CompletableFuture.runAsync(() -> {
+            var japanized = Japanizer.convert(message);
+            if (japanized == null) {
                 chatHud.addMessage(originalText, signatureData, indicator);
                 return;
             }
 
             var text = Text.empty();
             text.append(originalText);
-            text.append(Text.literal(" (" + japanizedMessage + ")").setStyle(originalText.getStyle().withColor(Formatting.GOLD)));
+            text.append(Text.literal(" (" + japanized + ")").setStyle(originalText.getStyle().withColor(Formatting.GOLD)));
 
             chatHud.addMessage(text, signatureData, indicator);
         });
