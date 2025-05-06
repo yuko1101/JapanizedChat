@@ -40,9 +40,9 @@ public class ChatScreenMixin {
     }
 
     @Unique
-    private static final ButtonWidget JAPANIZE_ENABLED_BUTTON = getJapanizeButton(Text.literal("日本語化: ").append(Text.literal("ON").setStyle(Style.EMPTY.withColor(Formatting.GREEN))));
+    private static final ButtonWidget JAPANIZE_ENABLED_BUTTON = japanizedchat$getJapanizeButton(Text.literal("日本語化: ").append(Text.literal("ON").setStyle(Style.EMPTY.withColor(Formatting.GREEN))));
     @Unique
-    private static final ButtonWidget JAPANIZE_DISABLED_BUTTON = getJapanizeButton(Text.literal("日本語化: ").append(Text.literal("OFF").setStyle(Style.EMPTY.withColor(Formatting.RED))));
+    private static final ButtonWidget JAPANIZE_DISABLED_BUTTON = japanizedchat$getJapanizeButton(Text.literal("日本語化: ").append(Text.literal("OFF").setStyle(Style.EMPTY.withColor(Formatting.RED))));
 
     @Inject(method = "render", at = @At("HEAD"))
     private void onRender(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
@@ -60,12 +60,12 @@ public class ChatScreenMixin {
     }
 
     @Unique
-    private static ButtonWidget getJapanizeButton(Text text) {
-        return ButtonWidget.builder(text, button -> toggleJapanize()).size(80, 20).build();
+    private static ButtonWidget japanizedchat$getJapanizeButton(Text text) {
+        return ButtonWidget.builder(text, button -> japanizedchat$toggleJapanize()).size(80, 20).build();
     }
 
     @Unique
-    private static void toggleJapanize() {
+    private static void japanizedchat$toggleJapanize() {
         JapanizedChat.japanizedInput = !JapanizedChat.japanizedInput;
     }
 }

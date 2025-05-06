@@ -1,0 +1,32 @@
+modLoader = "javafml"
+loaderVersion = "[2,)"
+#issueTrackerURL = ""
+license = "MIT"
+
+[[mods]]
+modId = "japanizedchat"
+version = "${version}"
+displayName = "JapanizedChat"
+authors = "yuko1101"
+description = '''
+A minecraft mod which converts Romaji into Japanese in chat. 
+'''
+logoFile = "icon.png"
+
+[[dependencies.japanizedchat]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.japanizedchat]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.1,)"
+ordering = "NONE"
+side = "BOTH"
+
+
+[[mixins]]
+config = "japanizedchat.mixins.json"
