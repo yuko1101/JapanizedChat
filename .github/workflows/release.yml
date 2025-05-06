@@ -1,0 +1,55 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        loader: [fabric, neoforge]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Environment Variables
+        shell: bash
+        run: |
+          echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+          cat gradle.properties | grep minecraft_version | sed -n -r "s/^minecraft_version=(.+)$/\1/p" | xargs -I {} echo "MINECRAFT_VERSION={}" >> $GITHUB_ENV
+
+      - name: Set Project Version
+        shell: bash
+        run: |
+          sed -i -r "s/^mod_version=.+$/mod_version=$VERSION/" gradle.properties
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
+        with:
+          gradle-version: '8.12.1'
+
+      - name: Build with Gradle
+        run: gradle build
+
+      - name: Get Artifact Paths
+        shell: bash
+        run: |
+          ls -d ${{ matrix.loader }}/build/libs/*.jar | awk '{print length($1), $1}' | sort -nk 1 | head -1 | sed -n -r "s/^[0-9]+ (.+)$/\1/p" | xargs -I {} echo "ARTIFACT_FILE={}" >> $GITHUB_ENV
+
+      - name: Publish to Modrinth
+        uses: cloudnode-pro/modrinth-publish@036ea8da00986e1dfec7a2c29596806580d27f2f # v2.1.1
+        with:
+          token: ${{ secrets.MODRINTH_TOKEN }}
+          project: qq7kZnUU
+          version: ${{ env.VERSION }}
+          loaders: ${{ matrix.loader }}
+          game-versions: ${{ env.MINECRAFT_VERSION }}
+          files: ${{ env.ARTIFACT_FILE }}
+          changelog: ${{ github.event.release.body }}
