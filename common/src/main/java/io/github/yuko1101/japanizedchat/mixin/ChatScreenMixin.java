@@ -2,6 +2,7 @@ package io.github.yuko1101.japanizedchat.mixin;
 
 import io.github.yuko1101.japanizedchat.JapanizedChat;
 import io.github.yuko1101.japanizedchat.util.Japanizer;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -52,9 +53,9 @@ public class ChatScreenMixin {
     }
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
-    private void onMouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
+    private void onMouseClicked(Click click, boolean doubled, CallbackInfoReturnable<Boolean> cir) {
         var buttonWidget = JapanizedChat.japanizedInput ? JAPANIZE_ENABLED_BUTTON : JAPANIZE_DISABLED_BUTTON;
-        if (buttonWidget.mouseClicked(mouseX, mouseY, button)) {
+        if (buttonWidget.mouseClicked(click, doubled)) {
             cir.setReturnValue(true);
         }
     }
