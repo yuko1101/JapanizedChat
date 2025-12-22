@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -18,6 +19,7 @@ public class Japanizer {
 
     private static final File ROMANTABLE = new File("config/romantable.txt");
     private static final HashMap<String, KanaResult> ROMAJI_TO_KANA = new HashMap<>();
+    private static final HashSet<Character> N_CONNECTABLE = new HashSet<>();
 
     record KanaResult(String output, String nextInput) { }
 
@@ -50,6 +52,12 @@ public class Japanizer {
             });
         } catch (RuntimeException | IOException e) {
             throw new RuntimeException("Failed to load romaji table", e);
+        }
+
+        for (var key : ROMAJI_TO_KANA.keySet()) {
+            if (key.startsWith("n") && key.length() > 1) {
+                N_CONNECTABLE.add(key.charAt(1));
+            }
         }
     }
 
@@ -94,7 +102,7 @@ public class Japanizer {
                 continue;
             }
 
-            if (bufferString.length() == 2 && bufferString.startsWith("n")) {
+            if (bufferString.length() == 2 && bufferString.startsWith("n") && !N_CONNECTABLE.contains(bufferString.charAt(1))) {
                 KanaResult kanaResult = ROMAJI_TO_KANA.get("" + bufferString.charAt(0));
                 if (kanaResult != null) {
                     result.append(kanaResult.output());
