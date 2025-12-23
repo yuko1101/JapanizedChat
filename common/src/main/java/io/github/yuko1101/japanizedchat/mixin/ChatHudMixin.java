@@ -19,6 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Mixin(ChatHud.class)
@@ -28,14 +29,15 @@ public abstract class ChatHudMixin {
 
     @Shadow protected abstract void refresh();
 
-    @Unique
-    private static final String MESSAGE_REGEX = "^<.+> (.+?)$";
-
     @Inject(method = "addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignatureData;Lnet/minecraft/client/gui/hud/MessageIndicator;)V", at = @At("TAIL"))
     private void japanizeMessage(Text message, MessageSignatureData signatureData, MessageIndicator indicator, CallbackInfo ci, @Local ChatHudLine chatHudLine) {
-        var matched = Pattern.compile(MESSAGE_REGEX).matcher(message.getString());
-        if (!matched.matches()) return;
-        var content = matched.group(1);
+        Matcher matched = null;
+        for (var pattern : JapanizedChat.messagePatterns) {
+            matched = pattern.matcher(message.getString());
+            if (matched.matches()) break;
+        }
+        if (matched == null || !matched.matches()) return;
+        var content = matched.group("content");
         if (Japanizer.hasFullWidth(content)) return;
 
         CompletableFuture.runAsync(() -> {

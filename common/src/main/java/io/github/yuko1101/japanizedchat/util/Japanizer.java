@@ -8,32 +8,22 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 public class Japanizer {
 
-    private static final File ROMANTABLE = new File("config/romantable.txt");
+    private static final ConfigFile ROMANTABLE = new ConfigFile("romantable.txt");
     private static final HashMap<String, KanaResult> ROMAJI_TO_KANA = new HashMap<>();
     private static final HashSet<Character> N_CONNECTABLE = new HashSet<>();
 
     record KanaResult(String output, String nextInput) { }
 
     static {
-        try {
-            var parent = ROMANTABLE.getParentFile();
-            if ((parent.exists() || parent.mkdirs()) && !ROMANTABLE.exists()) {
-                Files.copy(Objects.requireNonNull(Japanizer.class.getClassLoader().getResourceAsStream(ROMANTABLE.getName())), ROMANTABLE.toPath());
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        try (var reader = new FileInputStream(ROMANTABLE)) {
+        ROMANTABLE.ensureExists();
+        try (var reader = new FileInputStream(ROMANTABLE.file)) {
             var lineStream = new BufferedReader(new InputStreamReader(reader, StandardCharsets.UTF_8)).lines();
             lineStream.forEach(line -> {
                 String[] parts = line.split("\t");

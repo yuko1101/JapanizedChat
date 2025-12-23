@@ -1,0 +1,2 @@
+^<(?<username>.+?)> (?<content>.+?)$
+^(§9Party §8|§2Guild |§3Officer )> §.(\[.+] )?(?<username>.+?)§f: (?<content>.+)$
