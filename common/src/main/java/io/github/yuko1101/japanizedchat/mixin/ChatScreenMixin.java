@@ -24,7 +24,7 @@ import java.util.concurrent.CompletableFuture;
 public class ChatScreenMixin {
     @Redirect(method = "sendMessage", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;sendChatMessage(Ljava/lang/String;)V"))
     private void modifyChatInput(ClientPlayNetworkHandler handler, String content) {
-        if (!JapanizedChat.japanizedInput) {
+        if (!JapanizedChat.isJapanizedInputEnabled()) {
             handler.sendChatMessage(content);
             return;
         }
@@ -36,7 +36,7 @@ public class ChatScreenMixin {
                 return;
             }
 
-            handler.sendChatMessage(JapanizedChat.japanizedInputWithOriginal ? content + " (" + japanized + ")" : japanized);
+            handler.sendChatMessage(JapanizedChat.isJapanizedInputWithOriginalEnabled() ? content + " (" + japanized + ")" : japanized);
         });
     }
 
@@ -47,14 +47,14 @@ public class ChatScreenMixin {
 
     @Inject(method = "render", at = @At("HEAD"))
     private void onRender(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
-        var button = JapanizedChat.japanizedInput ? JAPANIZE_ENABLED_BUTTON : JAPANIZE_DISABLED_BUTTON;
+        var button = JapanizedChat.isJapanizedInputEnabled() ? JAPANIZE_ENABLED_BUTTON : JAPANIZE_DISABLED_BUTTON;
         button.setPosition(context.getScaledWindowWidth() - button.getWidth() - 10, context.getScaledWindowHeight() - button.getHeight() - 20);
         button.render(context, mouseX, mouseY, delta);
     }
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
     private void onMouseClicked(Click click, boolean doubled, CallbackInfoReturnable<Boolean> cir) {
-        var buttonWidget = JapanizedChat.japanizedInput ? JAPANIZE_ENABLED_BUTTON : JAPANIZE_DISABLED_BUTTON;
+        var buttonWidget = JapanizedChat.isJapanizedInputEnabled() ? JAPANIZE_ENABLED_BUTTON : JAPANIZE_DISABLED_BUTTON;
         if (buttonWidget.mouseClicked(click, doubled)) {
             cir.setReturnValue(true);
         }
@@ -62,11 +62,6 @@ public class ChatScreenMixin {
 
     @Unique
     private static ButtonWidget japanizedchat$getJapanizeButton(Text text) {
-        return ButtonWidget.builder(text, button -> japanizedchat$toggleJapanize()).size(80, 20).build();
-    }
-
-    @Unique
-    private static void japanizedchat$toggleJapanize() {
-        JapanizedChat.japanizedInput = !JapanizedChat.japanizedInput;
+        return ButtonWidget.builder(text, button -> JapanizedChat.toggleJapanizeInput()).size(80, 20).build();
     }
 }
