@@ -12,7 +12,6 @@ import net.minecraft.util.Formatting;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -20,7 +19,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Mixin(ChatHud.class)
 public abstract class ChatHudMixin {
@@ -54,7 +52,7 @@ public abstract class ChatHudMixin {
     private void onRender(CallbackInfo ci) {
         if (JapanizedChat.replaceQueue.isEmpty()) return;
         var shouldRefresh = false;
-        var entrySet = JapanizedChat.replaceQueue.entrySet();
+        var entrySet = JapanizedChat.replaceQueue.entrySet().stream().toList();
         for (var entry : entrySet) {
             var chatHudLine = entry.getKey();
             var text = entry.getValue();
