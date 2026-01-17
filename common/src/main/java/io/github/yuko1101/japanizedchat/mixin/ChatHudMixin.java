@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
@@ -52,16 +53,19 @@ public abstract class ChatHudMixin {
     private void onRender(CallbackInfo ci) {
         if (JapanizedChat.replaceQueue.isEmpty()) return;
         var shouldRefresh = false;
-        var entrySet = JapanizedChat.replaceQueue.entrySet().stream().toList();
-        for (var entry : entrySet) {
+        var toRemove = new ArrayList<ChatHudLine>();
+        for (var entry : JapanizedChat.replaceQueue.entrySet()) {
             var chatHudLine = entry.getKey();
             var text = entry.getValue();
             if (messages.contains(chatHudLine)) {
                 this.messages.set(this.messages.indexOf(chatHudLine), new ChatHudLine(chatHudLine.creationTick(), text, chatHudLine.signature(), chatHudLine.indicator()));
                 shouldRefresh = true;
             }
-            JapanizedChat.replaceQueue.remove(chatHudLine);
+
+            toRemove.add(chatHudLine);
         }
+
+        toRemove.forEach(JapanizedChat.replaceQueue::remove);
 
         if (shouldRefresh) this.refresh();
     }
