@@ -98,7 +98,6 @@ public class Japanizer {
                     result.append(kanaResult.output());
                     buffer.deleteCharAt(0);
                     buffer.insert(0, kanaResult.nextInput());
-                    continue;
                 }
             }
 
