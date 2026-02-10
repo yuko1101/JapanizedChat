@@ -53,7 +53,16 @@ public class Japanizer {
 
     @Nullable
     public static String convert(String msg) {
-        return conv(romaToKana(msg));
+        var words = msg.split(" ");
+        var kanaWords = Arrays.stream(words).map(word -> {
+            if (word.isEmpty()) return word;
+            var kana = romaToKana(word);
+            if (kanaScore(kana) < 0.8) return word;
+            return kana;
+        });
+
+        var kanaMsg = String.join(" ", kanaWords.toArray(String[]::new));
+        return conv(kanaMsg);
     }
 
     public static boolean hasFullWidth(String msg) {
@@ -198,5 +207,11 @@ public class Japanizer {
         }
 
         return buf.toString();
+    }
+
+    private static double kanaScore(String kana) {
+        var chars = kana.split("");
+        var kanaCount = Arrays.stream(chars).filter(c -> c.getBytes().length > 1).count();
+        return (double) kanaCount / chars.length;
     }
 }
