@@ -18,6 +18,7 @@ public class Japanizer {
     private static final ConfigFile ROMANTABLE = new ConfigFile("romantable.txt");
     private static final HashMap<String, KanaResult> ROMAJI_TO_KANA = new HashMap<>();
     private static final HashSet<Character> N_CONNECTABLE = new HashSet<>();
+    private static final HashSet<Character> ALPHABET = new HashSet<>();
 
     record KanaResult(String output, String nextInput) { }
 
@@ -47,6 +48,9 @@ public class Japanizer {
         for (var key : ROMAJI_TO_KANA.keySet()) {
             if (key.startsWith("n") && key.length() > 1) {
                 N_CONNECTABLE.add(key.charAt(1));
+            }
+            for (char c : key.toCharArray()) {
+                ALPHABET.add(c);
             }
         }
     }
@@ -210,8 +214,13 @@ public class Japanizer {
     }
 
     private static double kanaScore(String kana) {
+        kana = kana.replaceFirst("w+$", ""); // removes trailing 'w's which is a Japanese slang that don't affect the "japanese-ness" of the text
         var chars = kana.split("");
         var kanaCount = Arrays.stream(chars).filter(c -> c.getBytes().length > 1).count();
-        return (double) kanaCount / chars.length;
+        var alphaCount = Arrays.stream(chars).filter(c -> {
+            var bytes = c.getBytes();
+            return bytes.length == 1 && ALPHABET.contains(c.charAt(0));
+        }).count();
+        return (double) kanaCount / (alphaCount + kanaCount);
     }
 }
