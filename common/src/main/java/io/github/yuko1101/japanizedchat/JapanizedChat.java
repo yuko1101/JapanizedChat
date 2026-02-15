@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 public class JapanizedChat {
@@ -25,7 +26,7 @@ public class JapanizedChat {
 
 	public static final ConfigFile MESSAGE_REGEX_CONFIG = new ConfigFile("message_regex.txt");
 	public static List<Pattern> messagePatterns = new ArrayList<>();
-	public static HashMap<ChatHudLine, Text> replaceQueue = new HashMap<>();
+	public static final ConcurrentHashMap<ChatHudLine, Text> replaceQueue = new ConcurrentHashMap<>();
 
 	public static void init() {
 		MESSAGE_REGEX_CONFIG.ensureExists();
