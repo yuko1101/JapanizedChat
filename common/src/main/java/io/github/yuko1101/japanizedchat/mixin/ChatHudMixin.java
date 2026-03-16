@@ -49,7 +49,7 @@ public abstract class ChatHudMixin {
         });
     }
 
-    @Inject(method = "render", at = @At("HEAD"))
+    @Inject(method = "render(Lnet/minecraft/client/gui/hud/ChatHud$Backend;IIZ)V", at = @At("HEAD"))
     private void onRender(CallbackInfo ci) {
         if (JapanizedChat.replaceQueue.isEmpty()) return;
         var shouldRefresh = false;
